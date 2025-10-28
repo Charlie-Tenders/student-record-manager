@@ -1,3 +1,5 @@
+import { logMiddleware } from "./middleware/middleware";
+
 import express from "express";
 const app = express();
 const PORT = 3000;
@@ -12,20 +14,19 @@ const users = [
 app.use(express.json());
 
 // middleware to log request body
-app.use(async (req, res, next) => {
-  const date = new Date().toISOString();
-  console.log(`[${date}] ${req.method} ${req.url}`);
+// app.use(async (req, res, next) => {
+//   const date = new Date().toISOString();
+//   console.log(`[${date}] ${req.method} ${req.url}`);
 
-  const response = await fetch("https://jsonplaceholder.typicode.com/users/1");
-  const data = await response.json();
-  req.data = data;
-  console.log(data);
+//   const response = await fetch("https://jsonplaceholder.typicode.com/users/1");
+//   const data = await response.json();
+//   req.data = data;
+//   console.log(data);
 
-  next();
-});
+//   next();
+// });
 
-app.get("/", (req, res) => {
-  const data = req.data;
+app.get("/", logMiddleware, (req, res) => {
   res.json({ users, data });
 });
 
