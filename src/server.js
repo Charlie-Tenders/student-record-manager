@@ -1,16 +1,29 @@
 import express from "express";
-
 const app = express();
-
 const PORT = 3000;
+
+const users = [
+  { id: 1, name: "Alice" },
+  { id: 2, name: "Bob" },
+  { id: 3, name: "Charlie" },
+  { id: 4, name: "Dave" },
+];
 
 app.use(express.json());
 
+// middleware to log request body
+app.use((req, res, next) => {
+  const date = new Date().toISOString();
+  console.log(`[${date}] ${req.method} ${req.url}`);
+  next();
+});
+
 app.get("/", (req, res) => {
-  res.json({
-    firstName: "John",
-    lastName: "Doe",
-  });
+  res.json(users);
+});
+
+app.post("/", (req, res) => {
+  console.log(req);
 });
 
 app.listen(PORT, () => {
