@@ -1,4 +1,4 @@
-import { logMiddleware } from "./middleware/middleware";
+import { logMiddleware } from "./middleware/logger.js";
 
 import express from "express";
 const app = express();
