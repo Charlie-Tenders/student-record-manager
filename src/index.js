@@ -1,6 +1,7 @@
 import { logMiddleware } from "./middleware/logger.js";
-
+import { getAllUsers } from "./controllers/userController.js"
 import express from "express";
+
 const app = express();
 const PORT = 3000;
 
@@ -26,9 +27,11 @@ app.use(express.json());
 //   next();
 // });
 
-app.get("/", logMiddleware, (req, res) => {
-  res.json({ users, data });
-});
+// app.get("/", logMiddleware, (req, res) => {
+//   res.json({ users });
+// });
+
+app.get("/", logMiddleware, getAllUsers)
 
 app.post("/", (req, res) => {
   console.log(req);
