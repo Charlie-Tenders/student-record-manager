@@ -1,11 +1,10 @@
-// Import the service
 import * as userService from "../services/userService.js";
 
 // Get all users
 export const getAllUsers = (req, res) => {
   try {
-    const users = userService.getAllUsers(); // Call service
-    res.status(200).json(users); // HTTP response
+    const users = userService.getAllUsers();
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -15,7 +14,7 @@ export const getAllUsers = (req, res) => {
 export const getUserById = (req, res) => {
   try {
     const { id } = req.params;
-    const user = userService.getUserById(id); // Call service
+    const user = userService.getUserById(id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -30,16 +29,20 @@ export const getUserById = (req, res) => {
 // Create new user
 export const createUser = (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, email } = req.body;
 
-    // Basic validation (could be moved to middleware)
+    // Validation
     if (!name) {
       return res.status(400).json({ message: "Name is required" });
     }
 
-    const newUser = userService.createUser({ name }); // Call service
+    const newUser = userService.createUser({ name, email });
     res.status(201).json(newUser);
   } catch (error) {
+    // Handle duplicate email error
+    if (error.message === "Email already exists") {
+      return res.status(409).json({ message: error.message });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -48,9 +51,9 @@ export const createUser = (req, res) => {
 export const updateUser = (req, res) => {
   try {
     const { id } = req.params;
-    const userData = req.body;
+    const { name, email } = req.body;
 
-    const updatedUser = userService.updateUser(id, userData); // Call service
+    const updatedUser = userService.updateUser(id, { name, email });
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
@@ -58,6 +61,9 @@ export const updateUser = (req, res) => {
 
     res.status(200).json(updatedUser);
   } catch (error) {
+    if (error.message === "Email already exists") {
+      return res.status(409).json({ message: error.message });
+    }
     res.status(500).json({ message: error.message });
   }
 };
@@ -66,27 +72,14 @@ export const updateUser = (req, res) => {
 export const deleteUser = (req, res) => {
   try {
     const { id } = req.params;
-    const deleted = userService.deleteUser(id); // Call service
+    const deleted = userService.deleteUser(id);
 
     if (!deleted) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(204).send(); // No content
+    res.status(204).send();
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
-
-// // This is your data (normally would come from a service/database)
-// const users = [
-//   { id: 1, name: "Alice" },
-//   { id: 2, name: "Bob" },
-//   { id: 3, name: "Charlie" },
-//   { id: 4, name: "Dave" },
-// ];
-
-// // Controller function - extracted from the route
-// export const getAllUsers = (req, res) => {
-//   res.json(users);
-// };
