@@ -1,49 +1,46 @@
 import Database from "better-sqlite3";
 import path from "path";
 import { fileURLToPath } from "url";
+import config from "./config.js"; // Import config
 
-// Get current directory (needed for ES modules)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Create/connect to database file
-// This will create 'database.sqlite' in your project root
-const db = new Database(path.join(__dirname, "../../database.sqlite"));
+// Use DATABASE_URL from config
+let dbPath;
 
-// Enable foreign keys (important for relational data)
+if (path.isAbsolute(config.databaseUrl)) {
+  // Absolute path (production with volume mount)
+  dbPath = config.databaseUrl;
+} else {
+  // Relative path (development)
+  dbPath = path.join(__dirname, "../../", config.databaseUrl);
+}
+
+console.log(`📊 Database path: ${dbPath}`);
+
+// Create/connect to database
+const db = new Database(dbPath);
+
+// Enable foreign keys
 db.pragma("foreign_keys = ON");
 
-// Function to initialize database tables
-export const initializeDatabase = () => {
-  // Create users table if it doesn't exist
-  const createUsersTable = `
-		CREATE TABLE IF NOT EXISTS users (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			name TEXT NOT NULL,
-			email TEXT UNIQUE,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		)
-	`;
+// Initialize database tables
+export const initializeDatabase = async () => {
+  console.log("🔧 Initializing database...");
 
-  db.exec(createUsersTable);
+  // Import models
+  const User = (await import("../models/User.js")).default;
 
-  console.log("✅ Database initialized");
+  // Create tables
+  User.createTable();
 
-  // Optional: Add sample data if table is empty
-  const userCount = db.prepare("SELECT COUNT(*) as count FROM users").get();
-
-  if (userCount.count === 0) {
-    console.log("📝 Adding sample data...");
-    const insert = db.prepare("INSERT INTO users (name, email) VALUES (?, ?)");
-
-    insert.run("Alice", "alice@example.com");
-    insert.run("Bob", "bob@example.com");
-    insert.run("Charlie", "charlie@example.com");
-    insert.run("Dave", "dave@example.com");
-
-    console.log("✅ Sample data added");
+  // Only seed in development
+  if (config.isDevelopment()) {
+    User.seed();
   }
+
+  console.log("✅ Database initialization complete");
 };
 
-// Export the database instance
 export default db;
