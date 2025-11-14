@@ -6,7 +6,7 @@ import {
   validateApiKeyProduction,
 } from "./middleware/apiKey.js"; // Import API key middleware
 import userRoutes from "./routes/userRoutes.js";
-import restaurantRoutes from "./routes/RestaurantRoutes.js";
+import restaurantRoutes from "./routes/restaurantRoutes.js";
 import { initializeDatabase } from "./config/database.js";
 
 const app = express();
