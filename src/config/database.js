@@ -31,13 +31,17 @@ export const initializeDatabase = async () => {
 
   // Import models
   const User = (await import("../models/User.js")).default;
+  const parisRestaurant = (await import("../models/Restaurant.js"))
+    .default;
 
   // Create tables
   User.createTable();
+  parisRestaurant.createTable();
 
   // Only seed in development
   if (config.isDevelopment()) {
     User.seed();
+    parisRestaurant.seed();
   }
 
   console.log("✅ Database initialization complete");

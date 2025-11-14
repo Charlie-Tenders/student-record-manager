@@ -6,6 +6,7 @@ import {
   validateApiKeyProduction,
 } from "./middleware/apiKey.js"; // Import API key middleware
 import userRoutes from "./routes/userRoutes.js";
+import restaurantRoutes from "./routes/RestaurantRoutes.js";
 import { initializeDatabase } from "./config/database.js";
 
 const app = express();
@@ -26,6 +27,7 @@ app.get("/", (req, res) => {
     environment: config.nodeEnv,
     endpoints: {
       users: "/users",
+      restaurants: "/restaurants",
     },
   });
 });
@@ -41,10 +43,11 @@ app.get("/health", (req, res) => {
 
 // Protected routes (API key required)
 // Option 1: Protect all /users routes
-app.use("/users", validateApiKey, userRoutes);
+//app.use("/users", validateApiKey, userRoutes);
 
 // Option 2: Only protect in production (easier for development)
-// app.use('/users', validateApiKeyProduction, userRoutes)
+app.use("/users", validateApiKeyProduction, userRoutes);
+app.use("/restaurants", validateApiKeyProduction, restaurantRoutes);
 
 // 404 handler
 app.use((req, res) => {
